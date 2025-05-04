@@ -1,0 +1,8 @@
+query GetContestHistory($username: String) {
+    userContestRankingHistory(username: $username) {
+        contest {
+            title
+            startTime
+        }
+    }
+}

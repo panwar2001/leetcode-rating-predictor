@@ -1,0 +1,12 @@
+type Contest {
+    title: String
+    startTime: Int
+}
+
+type UserContestRankingHistory {
+    contest: Contest
+}
+
+type Query {
+    userContestRankingHistory(username: String): [UserContestRankingHistory]
+}
