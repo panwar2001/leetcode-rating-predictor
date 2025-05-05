@@ -2,8 +2,11 @@ package com.panwar2001.leetcoderatingpredictorai.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.sql.Time
 
 @Entity(tableName = "WeeklyContest")
 data class ContestEntity(
-    @PrimaryKey val contestName: String
+    @PrimaryKey val contestName: String,
+    val time: Long,
+    val duration: Int
 )

@@ -1,5 +1,7 @@
 package com.panwar2001.leetcoderatingpredictorai.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,19 +19,21 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,18 +41,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.sp
+import com.panwar2001.leetcoderatingpredictorai.database.ContestEntity
 import com.panwar2001.leetcoderatingpredictorai.ui.theme.LeetcodeRatingPredictorAITheme
-import com.panwar2001.leetcoderatingpredictorai.viewModels.WeeklyContestViewModel
-import androidx.compose.runtime.getValue
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 @Composable
 fun LeetCodeRatingPredictorScreen(
-    weeklyContestViewModel: WeeklyContestViewModel= hiltViewModel(),
+    contests: List<ContestEntity>,
+    isRefreshing: Boolean = false,
+    reloadContest: ()->Unit= {},
+    predict: (String)->Unit,
+    predicting: Boolean = false,
+    unableToPredict: Boolean = false
 ) {
-        val contests by weeklyContestViewModel.contests.collectAsStateWithLifecycle()
+        var username by remember { mutableStateOf("") }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -71,83 +81,155 @@ fun LeetCodeRatingPredictorScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
-                value = "",
-                onValueChange = {},
+                value = username,
+                onValueChange = {
+                  username=it
+                },
                 placeholder = { Text("Username") },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                isError = unableToPredict
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { /* Predict action */ },
+                onClick = { predict(username) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text(
-                    text= "Predict Rating",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium
-                )
+                if(predicting){
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.then(Modifier.size(20.dp)),
+                        strokeWidth = 2.dp
+                    )
+                }else {
+                    Text(
+                        text = "Predict Rating",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(6.dp))
+            Row(modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically){
+                Text(text = "\uD83C\uDFC6 LeetCode Contests (${contests.size})",
+                    fontWeight = FontWeight.Bold)
+                GradientButton(onClick = reloadContest){
+                    Row {
+                        if (isRefreshing) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.then(Modifier.size(16.dp)),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = "Reload"
+                            )
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = "Reload",
+                            color = Color.White,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(contests){
-                    ContestItem(contestTitle = it.contestName)
+                    ContestItem(contest= it)
                 }
             }
         }
 }
 
+
 @Composable
-fun ContestItem(contestTitle: String) {
+fun ContestItem(contest: ContestEntity) {
+    var expanded by remember { mutableStateOf(false) }
     Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(vertical = 4.dp)
             .clip(RoundedCornerShape(8.dp))
             .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
-            .clickable { /* Expand/collapse */ },
+            .clickable { expanded = !expanded }
+            .animateContentSize(),
         tonalElevation = 1.dp
     ) {
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.DateRange,
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = contestTitle,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = null
-            )
+        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 16.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = contest.contestName,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = null
+                )
+            }
+
+            AnimatedVisibility(visible = expanded) {
+                Column(modifier = Modifier.padding(top = 12.dp)) {
+                    Text("Start Time: ${getTime(contest.time)}")
+                    Text("Duration: ${getDuration(contest.duration)}")
+                }
+            }
         }
     }
 }
+fun getTime(unixTimeInSeconds: Long): String{
+    val date = Date(unixTimeInSeconds * 1000)
+    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    formatter.timeZone = TimeZone.getDefault()
+    return formatter.format(date)
+}
+fun getDuration(durationInSeconds: Int): String {
+    val hours = durationInSeconds / 3600
+    val minutes = (durationInSeconds % 3600) / 60
 
-
+    return buildString {
+        if (hours > 0) append("$hours hour${if (hours > 1) "s" else ""} ")
+        if (minutes > 0) append("$minutes minute${if (minutes > 1) "s" else ""}")
+        if (hours == 0 && minutes == 0) append("less than a minute")
+    }.trim()
+}
 
 
 @Preview(showBackground = true)
 @Composable
 fun DashboardPreview() {
+    val contests = mutableListOf<ContestEntity>()
+    repeat(5){
+        contests.add(ContestEntity("Weekly contest ${6-it+1}", 939349949, 1233))
+    }
     LeetcodeRatingPredictorAITheme {
-        LeetCodeRatingPredictorScreen()
+        LeetCodeRatingPredictorScreen(
+            contests = contests,
+            predict = {}
+        )
     }
 }

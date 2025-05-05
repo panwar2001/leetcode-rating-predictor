@@ -11,12 +11,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.panwar2001.leetcoderatingpredictorai.Screens
 import com.panwar2001.leetcoderatingpredictorai.viewModels.PredictionViewModel
+import com.panwar2001.leetcoderatingpredictorai.viewModels.WeeklyContestViewModel
 
 
 /**
@@ -31,14 +33,25 @@ fun NavigationController(
     NavHost(navController = navController, startDestination = Screens.DashboardScreen.route) {
         composable(route = Screens.DashboardScreen.route) {
 //            val isNetworkAvailable by predictionViewModel.networkAvailable.observeAsState(initial = false)
+            val weeklyContestViewModel: WeeklyContestViewModel= hiltViewModel()
+            val contests by weeklyContestViewModel.contests.collectAsStateWithLifecycle()
+
             Scaffold(bottomBar = {
                 BottomNavigationBar(
                     selectedTab = "Dashboard",
-                    navigateTo = { if(it!="Dashboard") navController.navigate(it)})
+                    navigateTo = { navController.navigate(it)})
             }){ paddingValue ->
                 Box(modifier = Modifier.padding(paddingValue)) {
                     LeetCodeRatingPredictorScreen(
-
+                        contests= contests,
+                        isRefreshing = weeklyContestViewModel.loading,
+                        reloadContest = weeklyContestViewModel::reloadContest,
+                        predict = {
+                            if(predictionViewModel.predict(it)){
+                                navController.navigate(Screens.PredictionScreen.route)
+                            }
+                        },
+                        unableToPredict = predictionViewModel.unableToPredict
                     )
                 }
             }
@@ -48,7 +61,7 @@ fun NavigationController(
             Scaffold(bottomBar = {
                 BottomNavigationBar(
                     selectedTab = "Prediction",
-                    navigateTo = {if(it!="Prediction") navController.navigate(it)}
+                    navigateTo = {navController.navigate(it)}
                 )
             }){ paddingValue ->
                     Box(modifier = Modifier.padding(paddingValue)) {

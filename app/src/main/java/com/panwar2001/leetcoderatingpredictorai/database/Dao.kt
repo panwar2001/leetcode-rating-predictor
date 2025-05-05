@@ -11,7 +11,7 @@ interface ContestDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertContest(contest : ContestEntity): Long
 
-    @Query("select * from weeklycontest;")
+    @Query("select * from weeklycontest order by time desc;")
     fun retrieveAllContest(): Flow<List<ContestEntity>>
 
     @Query("delete from weeklycontest;")

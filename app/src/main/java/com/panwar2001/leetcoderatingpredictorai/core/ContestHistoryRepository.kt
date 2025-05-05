@@ -26,12 +26,16 @@ constructor(
                 var client  = ApolloClient.Builder()
                     .serverUrl("https://leetcode.com/graphql/")
                     .build()
-                contestDao.deleteAllContest()
                 val response = client.query(GetContestHistoryQuery(username = name)).execute()
                 val history= response.data?.userContestRankingHistory
                 if (response.data != null && history!=null) {
+                    contestDao.deleteAllContest()
                     history.forEach {
-                        contestDao.insertContest(contest = ContestEntity(it?.contest?.title.toString()))
+                        contestDao.insertContest(contest = ContestEntity(
+                            it?.contest?.title.toString(),
+                            it?.contest?.startTime!!.toLong(),
+                            it.contest.duration!!
+                        ))
                     }
                 } else {
                     e("error", "unable to fetch data")

@@ -3,6 +3,7 @@ query GetContestHistory($username: String) {
         contest {
             title
             startTime
+            duration
         }
     }
 }

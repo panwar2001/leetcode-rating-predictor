@@ -8,6 +8,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.panwar2001.leetcoderatingpredictorai.Screens
 
 @Composable
 fun BottomNavigationBar(selectedTab: String, navigateTo: (String)-> Unit){
@@ -16,13 +17,13 @@ fun BottomNavigationBar(selectedTab: String, navigateTo: (String)-> Unit){
             icon = { Icon(Icons.Default.Home, contentDescription = "Dashboard") },
             label = { Text("Dashboard") },
             selected = selectedTab=="Dashboard",
-            onClick = { /* Navigate to Dashboard */ }
+            onClick = { if(selectedTab!="Dashboard") navigateTo(Screens.DashboardScreen.route) }
         )
         NavigationBarItem(
             icon = { Icon(Icons.Default.Info, contentDescription = "Predictions") },
             label = { Text("Predictions") },
             selected = selectedTab=="Prediction",
-            onClick = { /* Navigate to Predictions */ }
+            onClick = { if(selectedTab!="Prediction") navigateTo(Screens.PredictionScreen.route) }
         )
     }
 }

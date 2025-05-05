@@ -2,6 +2,9 @@ package com.panwar2001.leetcoderatingpredictorai.viewModels
 
 
 import android.net.ConnectivityManager
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.panwar2001.leetcoderatingpredictorai.core.DataRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,5 +26,9 @@ constructor(private val dataRepository: DataRepository,
             private val connectivityManager: ConnectivityManager): ViewModel(){
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+    var unableToPredict by mutableStateOf(false)
 
+    fun predict(username: String): Boolean{
+       return true
+    }
 }
