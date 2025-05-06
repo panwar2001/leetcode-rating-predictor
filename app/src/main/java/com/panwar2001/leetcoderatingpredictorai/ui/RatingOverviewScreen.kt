@@ -1,8 +1,6 @@
 package com.panwar2001.leetcoderatingpredictorai.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,23 +8,31 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.panwar2001.leetcoderatingpredictorai.ui.theme.LeetcodeRatingPredictorAITheme
+import com.panwar2001.leetcoderatingpredictorai.viewModels.ContestData
+import com.panwar2001.leetcoderatingpredictorai.viewModels.ContestMetaData
+import com.panwar2001.leetcoderatingpredictorai.viewModels.ProblemsSolved
 
 @Composable
-fun RatingOverviewScreen() {
+fun RatingOverviewScreen(
+    contest: List<ContestData> = listOf<ContestData>(),
+    problemsSolved: ProblemsSolved = ProblemsSolved(0,0,0,0),
+    contestMetaData: ContestMetaData = ContestMetaData(0,0f,0,0f),
+    predictedRating: Float=0f
+) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -40,9 +46,9 @@ fun RatingOverviewScreen() {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            RatingSection(title = "Current Rating", rating = "1600")
+            RatingSection(title = "Current Rating", rating = "${contestMetaData.rating}")
             Spacer(modifier = Modifier.height(16.dp))
-            RatingSection(title = "Predicted Rating", rating = "1650 (↑ 50)")
+            RatingSection(title = "Predicted Rating", rating = "$predictedRating (↑ ${predictedRating-contestMetaData.rating})")
 
             Divider(modifier = Modifier.padding(vertical = 24.dp))
 
@@ -59,20 +65,22 @@ fun RatingOverviewScreen() {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(150.dp)
-                        .background(Color.LightGray, CircleShape), // Placeholder for chart
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Pie Chart")
-                }
+                ChartCirclePie(
+                    charts = charts,
+                    problemsSolved = problemsSolved.total.toString()
+                )
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("• Easy: 360")
-                    Text("• Medium: 240")
-                    Text("• Hard: 300")
+                    Text("\uD83D\uDFE9 Easy: ${problemsSolved.easy}",
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.W600)
+                    Text("\uD83D\uDFE7 Medium: ${problemsSolved.medium}",
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.W600)
+                    Text("\uD83D\uDFE5 Hard: ${problemsSolved.hard}",
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.W600)
                 }
             }
 
@@ -86,24 +94,16 @@ fun RatingOverviewScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            ContestHistoryItem(
-                title = "LeetCode Weekly Contest 200",
-                date = "Sep 25, 2023",
-                rating = "1500",
-                rank = "50"
-            )
-            ContestHistoryItem(
-                title = "LeetCode Biweekly Contest 81",
-                date = "Sep 12, 2023",
-                rating = "1650",
-                rank = "20"
-            )
-            ContestHistoryItem(
-                title = "LeetCode Weekly Contest 199",
-                date = "Sep 01, 2023",
-                rating = "1800",
-                rank = "5"
-            )
+            LazyColumn {
+                items(contest){
+                    ContestHistoryItem(
+                        title = it.title,
+                        date = it.startTime.toString(),
+                        rating = it.rating.toString(),
+                        rank = it.ranking.toString()
+                    )
+                }
+            }
         }
 }
 
@@ -142,7 +142,48 @@ fun ContestHistoryItem(title: String, date: String, rating: String, rank: String
 @Preview(showBackground = true)
 @Composable
 fun Preview() {
+    val contest = remember { listOf<ContestData>(
+        ContestData(
+        title = "LeetCode Weekly Contest 200",
+        startTime = 340303  ,
+        rating = 1800f,
+        ranking = 4000,
+        problemsSolved = 3,
+       ),
+        ContestData(
+            title = "LeetCode Weekly Contest 201",
+            startTime = 340303  ,
+            rating = 1800f,
+            ranking = 4000,
+            problemsSolved = 3,
+        ),
+        ContestData(
+            title = "LeetCode Weekly Contest 202",
+            startTime = 340303  ,
+            rating = 1800f,
+            ranking = 4000,
+            problemsSolved = 3,
+        )
+    )}
+    val contestMetaData = remember {  ContestMetaData(
+        attendedContestCount = 20,
+        rating= 1400f,
+        globalRanking= 34323,
+        topPercentage= 3f
+    )}
+    val problemsSolved = remember {  ProblemsSolved(
+        easy = 120,
+        medium = 234,
+        hard = 355,
+        total = 689
+    )}
+
     LeetcodeRatingPredictorAITheme {
-        RatingOverviewScreen()
+        RatingOverviewScreen(
+            contest= contest,
+            problemsSolved = problemsSolved ,
+            contestMetaData= contestMetaData,
+            predictedRating = 2000f
+        )
     }
 }

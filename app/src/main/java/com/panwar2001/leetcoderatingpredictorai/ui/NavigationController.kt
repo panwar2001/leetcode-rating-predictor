@@ -65,7 +65,9 @@ fun NavigationController(
                 )
             }){ paddingValue ->
                     Box(modifier = Modifier.padding(paddingValue)) {
-                        RatingOverviewScreen()
+                        RatingOverviewScreen(
+
+                        )
                     }
                 }
             }

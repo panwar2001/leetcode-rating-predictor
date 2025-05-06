@@ -11,3 +11,39 @@ type UserContestRankingHistory {
 type Query {
     userContestRankingHistory(username: String): [UserContestRankingHistory]
 }
+
+
+
+
+#type QuestionCount {
+#    difficulty: String!
+#    count: Int!
+#}
+#
+#type UserContestRanking {
+#    attendedContestsCount: Int!
+#    rating: Float!
+#    globalRanking: Int!
+#    totalParticipants: Int!
+#    topPercentage: Float!
+#}
+#
+#type UserContestRankingHistory1 {
+#    contest: Contest1!
+#    rating: Float!
+#    ranking: Int!
+#    problemsSolved: Int!
+#    attended: Boolean!
+#}
+#
+#type Contest1 {
+#    title: String!
+#    startTime: Int!
+#}
+#
+#
+#type Query1 {
+#    allQuestionsCount: [QuestionCount!]!
+#    userContestRanking(username: String!): UserContestRanking
+#    userContestRankingHistory(username: String!): [UserContestRankingHistory1!]!
+#}
