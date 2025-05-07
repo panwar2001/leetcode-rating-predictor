@@ -1,0 +1,28 @@
+query getUserProfile($username: String) {
+#    matchedUser(username: $username) {
+#        submitStats:submitStatsGlobal {
+#            acSubmissionNum {
+#                difficulty
+#                count
+#            }
+#        }
+#    }
+    userContestRanking(username: $username) {
+        attendedContestsCount
+        rating
+        globalRanking
+        totalParticipants
+        topPercentage
+    }
+    userContestRankingHistory(username: $username) {
+        contest {
+            title
+            startTime
+        }
+        rating
+        ranking
+        problemsSolved
+        attended
+    }
+}
+

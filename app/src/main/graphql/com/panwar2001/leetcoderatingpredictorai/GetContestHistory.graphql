@@ -8,4 +8,3 @@ query GetContestHistory($username: String) {
     }
 }
 
-query

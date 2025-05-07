@@ -1,7 +1,7 @@
 package com.panwar2001.leetcoderatingpredictorai.di
 
-import com.panwar2001.leetcoderatingpredictorai.core.DataRepoInterface
-import com.panwar2001.leetcoderatingpredictorai.core.DataRepository
+import com.panwar2001.leetcoderatingpredictorai.core.UserRepository
+import com.panwar2001.leetcoderatingpredictorai.core.UserRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -13,5 +13,5 @@ import javax.inject.Singleton
 abstract  class  RepoModule {
     @Singleton
     @Binds
-    abstract fun bindAppRepo(repository: DataRepository): DataRepoInterface
+    abstract fun bindAppRepo(repository: UserRepositoryImpl): UserRepository
 }

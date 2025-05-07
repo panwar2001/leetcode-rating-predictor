@@ -1,5 +1,9 @@
 package com.panwar2001.leetcoderatingpredictorai.ui
 
+import android.R.attr.maxLength
+import android.R.attr.onClick
+import android.R.id.input
+import android.util.Log.e
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.border
@@ -17,7 +21,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -29,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,12 +46,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.panwar2001.leetcoderatingpredictorai.database.ContestEntity
 import com.panwar2001.leetcoderatingpredictorai.ui.theme.LeetcodeRatingPredictorAITheme
+import kotlinx.coroutines.NonCancellable.isActive
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -55,14 +67,23 @@ fun LeetCodeRatingPredictorScreen(
     isRefreshing: Boolean = false,
     reloadContest: ()->Unit= {},
     predict: (String)->Unit,
-    predicting: Boolean = false,
-    unableToPredict: Boolean = false
+    isPredicting: Boolean = false,
+    unableToPredict: Boolean = false,
+    maxLengthInput: Int = 50,
+    usernamePattern: Regex = Regex("[a-zA-Z0-9_]*$"),
+    setUnableToPredict: (Boolean)-> Unit,
+    isNetworkAvailable: Boolean= false
 ) {
         var username by remember { mutableStateOf("") }
-        Column(
+        val focusManager = LocalFocusManager.current
+
+    Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
+                .clickable {
+                    focusManager.clearFocus() // Hide keyboard on click outside
+                }
         ) {
             Text(
                 text = "LeetCode Rating Predictor",
@@ -83,24 +104,66 @@ fun LeetCodeRatingPredictorScreen(
             OutlinedTextField(
                 value = username,
                 onValueChange = {
-                  username=it
+                    if (it.length <= maxLengthInput && it.matches(usernamePattern)) {
+                        username = it
+                        if(unableToPredict){
+                            setUnableToPredict(false)
+                        }
+                    }
+                },
+                leadingIcon = {
+                    Text(
+                        if(isNetworkAvailable) "\uD83D\uDFE2"
+                        else "\uD83D\uDD34"
+                    )
                 },
                 placeholder = { Text("Username") },
-                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                trailingIcon = {
+                    Icon(Icons.Default.Clear,"",
+                        modifier = Modifier.clickable(onClick={
+                            if(username!="")
+                               username=""
+                            else
+                              focusManager.clearFocus()
+                        }))
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (unableToPredict) {
+                            Modifier.border(
+                                width = 2.dp,
+                                color = Color.Red,
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                        } else {
+                            Modifier
+                        }
+                    ),
                 shape = RoundedCornerShape(12.dp),
-                isError = unableToPredict
+                isError = unableToPredict,
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                    },
+                    onGo = {
+                        focusManager.clearFocus()
+                    }
+                )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { predict(username) },
+                onClick = { focusManager.clearFocus(); predict(username) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                if(predicting){
+                if(isPredicting){
                     CircularProgressIndicator(
                         color = Color.White,
                         modifier = Modifier.then(Modifier.size(20.dp)),
@@ -229,7 +292,8 @@ fun DashboardPreview() {
     LeetcodeRatingPredictorAITheme {
         LeetCodeRatingPredictorScreen(
             contests = contests,
-            predict = {}
+            predict = {},
+            setUnableToPredict = {}
         )
     }
 }

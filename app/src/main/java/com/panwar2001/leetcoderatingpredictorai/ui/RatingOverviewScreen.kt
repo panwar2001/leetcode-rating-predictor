@@ -28,10 +28,10 @@ import com.panwar2001.leetcoderatingpredictorai.viewModels.ProblemsSolved
 
 @Composable
 fun RatingOverviewScreen(
-    contest: List<ContestData> = listOf<ContestData>(),
-    problemsSolved: ProblemsSolved = ProblemsSolved(0,0,0,0),
-    contestMetaData: ContestMetaData = ContestMetaData(0,0f,0,0f),
-    predictedRating: Float=0f
+    contest: List<ContestData> ,
+    problemsSolved: ProblemsSolved ,
+    contestMetaData: ContestMetaData,
+    predictedRating: Float
 ) {
         Column(
             modifier = Modifier
@@ -46,9 +46,9 @@ fun RatingOverviewScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            RatingSection(title = "Current Rating", rating = "${contestMetaData.rating}")
+            RatingSection(title = "Current Rating", rating = contestMetaData.rating)
             Spacer(modifier = Modifier.height(16.dp))
-            RatingSection(title = "Predicted Rating", rating = "$predictedRating (↑ ${predictedRating-contestMetaData.rating})")
+            RatingSection(title = "Predicted Rating", rating = "$predictedRating (↑ ${200})")
 
             Divider(modifier = Modifier.padding(vertical = 24.dp))
 
@@ -87,7 +87,7 @@ fun RatingOverviewScreen(
             Divider(modifier = Modifier.padding(vertical = 24.dp))
 
             Text(
-                text = "Contest History",
+                text = "Contest History (Attended ${contest.size} contest)",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
@@ -98,9 +98,9 @@ fun RatingOverviewScreen(
                 items(contest){
                     ContestHistoryItem(
                         title = it.title,
-                        date = it.startTime.toString(),
-                        rating = it.rating.toString(),
-                        rank = it.ranking.toString()
+                        date = it.startTime,
+                        rating = it.rating,
+                        rank = it.ranking
                     )
                 }
             }
@@ -145,37 +145,37 @@ fun Preview() {
     val contest = remember { listOf<ContestData>(
         ContestData(
         title = "LeetCode Weekly Contest 200",
-        startTime = 340303  ,
-        rating = 1800f,
-        ranking = 4000,
-        problemsSolved = 3,
+        startTime = "18 march"  ,
+        rating = "1800",
+        ranking = "4000",
+        problemsSolved = "3",
        ),
         ContestData(
             title = "LeetCode Weekly Contest 201",
-            startTime = 340303  ,
-            rating = 1800f,
-            ranking = 4000,
-            problemsSolved = 3,
+            startTime = "340303",
+            rating = "1800",
+            ranking = "4000",
+            problemsSolved = "3",
         ),
         ContestData(
-            title = "LeetCode Weekly Contest 202",
-            startTime = 340303  ,
-            rating = 1800f,
-            ranking = 4000,
-            problemsSolved = 3,
+            title = "LeetCode Weekly Contest 201",
+            startTime = "340303",
+            rating = "1800",
+            ranking = "4000",
+            problemsSolved = "3",
         )
-    )}
+        )}
     val contestMetaData = remember {  ContestMetaData(
-        attendedContestCount = 20,
-        rating= 1400f,
-        globalRanking= 34323,
-        topPercentage= 3f
+        attendedContestCount = "20",
+        rating= "445",
+        globalRanking= "5435",
+        topPercentage= "454"
     )}
     val problemsSolved = remember {  ProblemsSolved(
-        easy = 120,
-        medium = 234,
-        hard = 355,
-        total = 689
+        easy = "234",
+        medium = "43534",
+        hard = "434",
+        total = "4534"
     )}
 
     LeetcodeRatingPredictorAITheme {

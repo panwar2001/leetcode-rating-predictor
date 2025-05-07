@@ -11,6 +11,13 @@ plugins {
 apollo {
     service("service") {
         packageName.set("com.panwar2001.leetcoderatingpredictorai")
+        schemaFile.set(file("src/main/graphql/com/panwar2001/leetcoderatingpredictorai/schema.graphqls"))
+        srcDir("src/main/graphql/com/panwar2001/leetcoderatingpredictorai")
+    }
+    service("service_2"){
+        packageName.set("com.panwar2001.prediction")
+        schemaFile.set(file("src/main/graphql/com/panwar2001/prediction/schema.graphqls"))
+        srcDir("src/main/graphql/com/panwar2001/prediction")
     }
 }
 
@@ -89,4 +96,12 @@ dependencies {
 
     //lifecycle
     implementation(libs.androidx.lifecycle.runtime.compose)
+
+    //Retrofit
+    // Retrofit core
+    implementation(libs.retrofit)
+    // JSON converter using Gson
+    implementation(libs.converter.gson)
+    // OkHttp (Optional: Logging Interceptor)
+    implementation(libs.logging.interceptor) // or latest
 }

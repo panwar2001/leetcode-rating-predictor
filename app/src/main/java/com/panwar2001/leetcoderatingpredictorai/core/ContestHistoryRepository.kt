@@ -18,14 +18,12 @@ interface ContestHistoryRepoInterface {
 
 class ContestHistoryRepository  @Inject
 constructor(
-    private val contestDao: ContestDao
+    private val contestDao: ContestDao,
+    private val client: ApolloClient
 ): ContestHistoryRepoInterface{
     override suspend fun loadNewContestData(name: Optional<String?>) {
         try {
             withContext(Dispatchers.IO) {
-                var client  = ApolloClient.Builder()
-                    .serverUrl("https://leetcode.com/graphql/")
-                    .build()
                 val response = client.query(GetContestHistoryQuery(username = name)).execute()
                 val history= response.data?.userContestRankingHistory
                 if (response.data != null && history!=null) {
