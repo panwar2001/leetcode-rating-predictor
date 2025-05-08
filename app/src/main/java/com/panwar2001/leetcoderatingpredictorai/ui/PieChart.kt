@@ -1,18 +1,15 @@
 package com.panwar2001.leetcoderatingpredictorai.ui
 
-import android.R.attr.strokeWidth
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -30,11 +27,17 @@ data class ChartModel(
     val value: Float,
     val color: Color,
 )
-val charts = listOf(
-    ChartModel(value = 20f, color = Color.Green),
-    ChartModel(value = 40f, color = Orange),
-    ChartModel(value = 40f, color = Color.Red),
-)
+fun getCharts(easy:Int, medium:Int, hard: Int): List<ChartModel> {
+    val total = (easy+medium+hard)*1f
+    val easyAC = easy/total*100
+    val mediumAC = medium/total*100
+    val hardAC  = hard/total*100
+    return listOf(
+        ChartModel(value = easyAC, color = Color.Green),
+        ChartModel(value = mediumAC, color = Orange),
+        ChartModel(value = hardAC, color = Color.Red),
+    )
+}
 @OptIn(ExperimentalTextApi::class)
 @Composable
 internal fun ChartCirclePie(

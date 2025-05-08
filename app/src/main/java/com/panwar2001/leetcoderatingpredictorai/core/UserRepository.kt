@@ -1,12 +1,8 @@
 package com.panwar2001.leetcoderatingpredictorai.core
 
-import android.R.attr.data
-import android.util.Log
 import android.util.Log.e
 import com.apollographql.apollo.ApolloClient
-import com.apollographql.apollo.api.Optional
 import com.panwar2001.prediction.GetUserProfileQuery
-import java.lang.System.console
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -28,8 +24,8 @@ constructor(
             if(username==""){
                 throw Exception("Empty user name")
             }
-            val user = Optional.presentIfNotNull(username)
-            val response = apolloClient.query(GetUserProfileQuery(user)).execute()
+//            val user = Optional.presentIfNotNull(username)
+            val response = apolloClient.query(GetUserProfileQuery(username)).execute()
             e("response",response.toString())
             if(response.hasErrors() || response.errors !=null){
                 throw Exception("response has errors")

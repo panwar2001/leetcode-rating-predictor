@@ -15,9 +15,9 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun GradientButton(
+    modifier: Modifier= Modifier,
     gradient: Brush = Brush.horizontalGradient(colors = listOf(color1, color2)),
     onClick: () -> Unit,
-    modifier: Modifier= Modifier,
     content:@Composable ()-> Unit
 ) {
     Button (

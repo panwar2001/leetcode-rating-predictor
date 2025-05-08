@@ -1,4 +1,4 @@
-query GetContestHistory($username: String) {
+query GetContestHistory($username: String!) {
     userContestRankingHistory(username: $username) {
         contest {
             title

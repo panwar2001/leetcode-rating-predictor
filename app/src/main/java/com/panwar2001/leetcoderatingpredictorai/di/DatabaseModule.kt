@@ -3,7 +3,7 @@ package com.panwar2001.leetcoderatingpredictorai.di
 import android.content.Context
 import androidx.room.Room
 import com.panwar2001.leetcoderatingpredictorai.database.ContestDao
-import com.panwar2001.myapplication.database.AppDatabase
+import com.panwar2001.leetcoderatingpredictorai.database.AppDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

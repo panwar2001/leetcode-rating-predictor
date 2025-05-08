@@ -66,7 +66,7 @@ fun RatingOverviewScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ChartCirclePie(
-                    charts = charts,
+                    charts = getCharts(problemsSolved.easy,problemsSolved.medium,problemsSolved.hard),
                     problemsSolved = problemsSolved.total.toString()
                 )
                 Column(
@@ -172,10 +172,10 @@ fun Preview() {
         topPercentage= "454"
     )}
     val problemsSolved = remember {  ProblemsSolved(
-        easy = "234",
-        medium = "43534",
-        hard = "434",
-        total = "4534"
+        easy = 4,
+        medium = 5,
+        hard = 0,
+        total = 9
     )}
 
     LeetcodeRatingPredictorAITheme {

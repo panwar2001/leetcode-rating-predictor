@@ -2,13 +2,6 @@ package com.panwar2001.leetcoderatingpredictorai.viewModels
 
 
 import android.R.attr.data
-import android.R.attr.rating
-import android.util.Log.i
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.panwar2001.leetcoderatingpredictorai.core.UserRepository
@@ -33,10 +26,10 @@ data class ContestData(
     val problemsSolved: String=""
 )
 data class ProblemsSolved(
-    val easy: String="",
-    val medium: String ="",
-    val hard: String= "",
-    val total: String=""
+    val easy: Int = 0 ,
+    val medium: Int =0,
+    val hard: Int = 0,
+    val total: Int = 0
 )
 data class ContestMetaData(
     val attendedContestCount: String = "",
@@ -76,12 +69,12 @@ constructor(private val userRepository: UserRepository): ViewModel(){
             val result = userRepository.getUserProfile(username)
             result.onSuccess { data ->
                 _contestData.update { currentList ->
-                    data.userContestRankingHistory?.mapNotNull { historyItem ->
+                    data.userContestRankingHistory.mapNotNull { historyItem ->
                         // Transform each historyItem into a ContestData instance
-                        if(historyItem!= null && historyItem.attended!!) {
+                        if(historyItem.attended) {
                             ContestData(
-                                title = historyItem.contest?.title!!,
-                                startTime = getTime(historyItem.contest.startTime!!.toLong()),
+                                title = historyItem.contest.title,
+                                startTime = getTime(historyItem.contest.startTime.toLong()),
                                 rating = historyItem.rating.toString(),
                                 ranking = historyItem.ranking.toString(),
                                 problemsSolved = historyItem.problemsSolved.toString(),
@@ -89,23 +82,23 @@ constructor(private val userRepository: UserRepository): ViewModel(){
                         }else{
                             null
                         }
-                    } ?: emptyList()
+                    }
                 }
                 _problemsSolved.update {
-                    var easy = ""
-                    var medium = ""
-                    var hard = ""
-                    var total = ""
-//                    data.matchedUser?.submitStats?.acSubmissionNum?.forEach {
-//                        if(it?.difficulty=="Easy")
-//                            easy= "${it.count}"
-//                        else if(it?.difficulty=="Medium")
-//                            medium = "${it.count}"
-//                        else if(it?.difficulty=="Hard")
-//                            hard = "${it.count}"
-//                        else
-//                            total = "${it?.count}"
-//                    }
+                    var easy = 0
+                    var medium = 0
+                    var hard = 0
+                    var total = 0
+                    data.matchedUser.submitStats.acSubmissionNum.forEach {
+                        if(it.difficulty =="Easy")
+                            easy= it.count
+                        else if(it.difficulty=="Medium")
+                            medium = it.count
+                        else if(it.difficulty=="Hard")
+                            hard = it.count
+                        else
+                            total = it.count
+                    }
                     it.copy(
                         easy = easy,
                         medium = medium,
@@ -113,11 +106,11 @@ constructor(private val userRepository: UserRepository): ViewModel(){
                         total = total
                     )
                 }
-                data.userContestRanking?.let{ it->
+                data.userContestRanking.let{ it->
                 _contestMetaData.update { metaData->
                         metaData.copy(
                             attendedContestCount = "${it.attendedContestsCount}",
-                            rating= "${round(it.rating!!)}",
+                            rating= "${round(it.rating)}",
                             globalRanking = "${it.globalRanking}",
                             topPercentage = "${it.topPercentage}"
                         )

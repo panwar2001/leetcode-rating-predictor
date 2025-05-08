@@ -2,26 +2,27 @@ package com.panwar2001.leetcoderatingpredictorai.core
 
 import android.util.Log.e
 import com.apollographql.apollo.ApolloClient
-import com.apollographql.apollo.api.Optional
 import com.panwar2001.leetcoderatingpredictorai.GetContestHistoryQuery
 import com.panwar2001.leetcoderatingpredictorai.database.ContestDao
 import com.panwar2001.leetcoderatingpredictorai.database.ContestEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.collections.forEach
 
 interface ContestHistoryRepoInterface {
-    suspend fun loadNewContestData( name: Optional<String?>)
+    suspend fun loadNewContestData( name: String)
     suspend fun loadContestDataIfEmptyDB()
 }
 
+/**
+ * @ContestHistoryRepository fetch list of past weekly & bi-weekly contest
+ */
 class ContestHistoryRepository  @Inject
 constructor(
     private val contestDao: ContestDao,
     private val client: ApolloClient
 ): ContestHistoryRepoInterface{
-    override suspend fun loadNewContestData(name: Optional<String?>) {
+    override suspend fun loadNewContestData(name: String) {
         try {
             withContext(Dispatchers.IO) {
                 val response = client.query(GetContestHistoryQuery(username = name)).execute()
@@ -30,9 +31,9 @@ constructor(
                     contestDao.deleteAllContest()
                     history.forEach {
                         contestDao.insertContest(contest = ContestEntity(
-                            it?.contest?.title.toString(),
-                            it?.contest?.startTime!!.toLong(),
-                            it.contest.duration!!
+                            it.contest.title,
+                            it.contest.startTime.toLong(),
+                            it.contest.duration
                         ))
                     }
                 } else {
@@ -46,7 +47,7 @@ constructor(
 
     override suspend fun loadContestDataIfEmptyDB() {
         if(contestDao.countRows()==0){
-            loadNewContestData(Optional.presentIfNotNull("loft_plyr"))
+            loadNewContestData("loft_plyr")
         }
     }
 }

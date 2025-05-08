@@ -5,13 +5,11 @@ import android.net.Network
 import android.net.NetworkRequest
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.apollographql.apollo.api.Optional
 import com.panwar2001.leetcoderatingpredictorai.core.ContestHistoryRepository
 import com.panwar2001.leetcoderatingpredictorai.database.ContestDao
 import com.panwar2001.leetcoderatingpredictorai.database.ContestEntity
@@ -20,7 +18,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.util.OptionalInt
 import javax.inject.Inject
 
 @HiltViewModel
@@ -74,7 +71,7 @@ constructor(
     fun reloadContest(){
         viewModelScope.launch {
             loading=true
-            contestHistoryRepository.loadNewContestData(name = Optional.presentIfNotNull("loft_plyr"))
+            contestHistoryRepository.loadNewContestData(name = "loft_plyr")
             loading=false
         }
     }

@@ -1,36 +1,36 @@
 
 type UserContestRanking {
-    attendedContestsCount: Int
-    rating: Float
-    globalRanking: Int
-    totalParticipants: Int
-    topPercentage: Float
+    attendedContestsCount: Int!
+    rating: Float!
+    globalRanking: Int!
+    totalParticipants: Int!
+    topPercentage: Float!
 }
 
 type UserContestRankingHistory {
-    contest: Contest
-    rating: Float
-    ranking: Int
-    problemsSolved: Int
-    attended: Boolean
+    contest: Contest!
+    rating: Float!
+    ranking: Int!
+    problemsSolved: Int!
+    attended: Boolean!
 }
 
 type Contest {
-    title: String
-    startTime: Int
+    title: String!
+    startTime: Int!
 }
 
 
 type Query {
-    matchedUser(username: String): User
-    userContestRanking(username: String): UserContestRanking
-    userContestRankingHistory(username: String): [UserContestRankingHistory]
+    matchedUser(username: String): User!
+    userContestRanking(username: String): UserContestRanking!
+    userContestRankingHistory(username: String): [UserContestRankingHistory!]!
 }
 
 
 type User {
     username: String!
-    submitStatsGlobal: SubmitStatsGlobal
+    submitStatsGlobal: SubmitStatsGlobal!
 }
 
 type SubmitStatsGlobal {
