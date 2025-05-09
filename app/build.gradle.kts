@@ -104,4 +104,7 @@ dependencies {
     implementation(libs.converter.gson)
     // OkHttp (Optional: Logging Interceptor)
     implementation(libs.logging.interceptor) // or latest
+    // Tensorflow lite
+    implementation(libs.tensorflow.lite)
+//    implementation(libs.lite.rt)
 }

@@ -2,9 +2,12 @@ package com.panwar2001.leetcoderatingpredictorai.viewModels
 
 
 import android.R.attr.data
+import android.R.attr.rating
+import android.util.Half.toFloat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.panwar2001.leetcoderatingpredictorai.core.UserRepository
+import com.panwar2001.prediction.GetUserProfileQuery
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +19,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
+import kotlin.collections.mapNotNull
 import kotlin.math.round
 
 data class ContestData(
@@ -40,7 +44,8 @@ data class ContestMetaData(
 
 data class PredictionStatus(
     val loading: Boolean = false,
-    val unableToPredict: Boolean = false
+    val unableToPredict: Boolean = false,
+    val predictedRating: String
 )
 /**
  * @PredictionViewModel fetch user data and predicts the rating of last contest, if rating is not updated
@@ -68,55 +73,10 @@ constructor(private val userRepository: UserRepository): ViewModel(){
         viewModelScope.launch {
             val result = userRepository.getUserProfile(username)
             result.onSuccess { data ->
-                _contestData.update { currentList ->
-                    data.userContestRankingHistory.mapNotNull { historyItem ->
-                        // Transform each historyItem into a ContestData instance
-                        if(historyItem.attended) {
-                            ContestData(
-                                title = historyItem.contest.title,
-                                startTime = getTime(historyItem.contest.startTime.toLong()),
-                                rating = historyItem.rating.toString(),
-                                ranking = historyItem.ranking.toString(),
-                                problemsSolved = historyItem.problemsSolved.toString(),
-                            )
-                        }else{
-                            null
-                        }
-                    }
-                }
-                _problemsSolved.update {
-                    var easy = 0
-                    var medium = 0
-                    var hard = 0
-                    var total = 0
-                    data.matchedUser.submitStats.acSubmissionNum.forEach {
-                        if(it.difficulty =="Easy")
-                            easy= it.count
-                        else if(it.difficulty=="Medium")
-                            medium = it.count
-                        else if(it.difficulty=="Hard")
-                            hard = it.count
-                        else
-                            total = it.count
-                    }
-                    it.copy(
-                        easy = easy,
-                        medium = medium,
-                        hard = hard,
-                        total = total
-                    )
-                }
-                data.userContestRanking.let{ it->
-                _contestMetaData.update { metaData->
-                        metaData.copy(
-                            attendedContestCount = "${it.attendedContestsCount}",
-                            rating= "${round(it.rating)}",
-                            globalRanking = "${it.globalRanking}",
-                            topPercentage = "${it.topPercentage}"
-                        )
-                    }
-                }
-//                val prediction = userRepository.predictUserRating(data)
+                updateContestData(data.userContestRankingHistory)
+                updateProblemSolved(data.matchedUser)
+                updateUserMetaData(data.userContestRanking)
+                predictRatingDelta()
                 success(true)
                 _predictionStatus.update { it.copy(loading = false, unableToPredict = false) }
             }.onFailure {
@@ -125,7 +85,80 @@ constructor(private val userRepository: UserRepository): ViewModel(){
             }
         }
     }
-
+    internal fun predictRatingDelta(){
+        if(_contestData.value.isEmpty()) {
+            _predictionStatus.update { it.copy(predictedRating = "0") }
+        }
+        val latestContestAttended = _contestData.value[0]
+         viewModelScope.launch {
+            val delta = userRepository.predictUserRating(
+                userRating = latestContestAttended.rating.toFloat(),
+                contestAttended = _contestMetaData.value.attendedContestCount.toFloat(),
+                userRank = latestContestAttended.ranking.toFloat(),
+                contestTitle = latestContestAttended.title
+            )
+             val predictedRating = latestContestAttended.rating.toFloat() + delta
+             _predictionStatus.update { it.copy(predictedRating = predictedRating.toString()) }
+        }
+    }
+    internal fun updateContestData(
+        userContestRankingHistory:  List<GetUserProfileQuery.UserContestRankingHistory>
+    ){
+        _contestData.update { currentList ->
+            userContestRankingHistory.mapNotNull { historyItem ->
+                // Transform each historyItem into a ContestData instance
+                if(historyItem.attended) {
+                    ContestData(
+                        title = historyItem.contest.title,
+                        startTime = getTime(historyItem.contest.startTime.toLong()),
+                        rating = historyItem.rating.toString(),
+                        ranking = historyItem.ranking.toString(),
+                        problemsSolved = historyItem.problemsSolved.toString(),
+                    )
+                }else{
+                    null
+                }
+            }.sortedByDescending { it.startTime }
+        }
+    }
+    internal fun updateProblemSolved(matchedUser: GetUserProfileQuery.MatchedUser){
+        _problemsSolved.update {
+            var easy = 0
+            var medium = 0
+            var hard = 0
+            var total = 0
+            matchedUser.submitStats.acSubmissionNum.forEach {
+                if(it.difficulty =="Easy")
+                    easy= it.count
+                else if(it.difficulty=="Medium")
+                    medium = it.count
+                else if(it.difficulty=="Hard")
+                    hard = it.count
+                else
+                    total = it.count
+            }
+            it.copy(
+                easy = easy,
+                medium = medium,
+                hard = hard,
+                total = total
+            )
+        }
+    }
+   internal fun updateUserMetaData(
+        userContestRanking:  GetUserProfileQuery.UserContestRanking
+    ){
+        userContestRanking.let{ it->
+            _contestMetaData.update { metaData->
+                metaData.copy(
+                    attendedContestCount = "${it.attendedContestsCount}",
+                    rating= "${round(it.rating)}",
+                    globalRanking = "${it.globalRanking}",
+                    topPercentage = "${it.topPercentage}"
+                )
+            }
+        }
+    }
     fun setUnableToPredict(value: Boolean){
         _predictionStatus.update {
             it.copy(unableToPredict = value)
