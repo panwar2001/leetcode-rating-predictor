@@ -25,13 +25,14 @@ import com.panwar2001.leetcoderatingpredictorai.ui.theme.LeetcodeRatingPredictor
 import com.panwar2001.leetcoderatingpredictorai.viewModels.ContestData
 import com.panwar2001.leetcoderatingpredictorai.viewModels.ContestMetaData
 import com.panwar2001.leetcoderatingpredictorai.viewModels.ProblemsSolved
+import kotlin.math.round
 
 @Composable
 fun RatingOverviewScreen(
     contest: List<ContestData> ,
     problemsSolved: ProblemsSolved ,
     contestMetaData: ContestMetaData,
-    predictedRating: Float
+    ratingDelta: Float
 ) {
         Column(
             modifier = Modifier
@@ -48,7 +49,7 @@ fun RatingOverviewScreen(
 
             RatingSection(title = "Current Rating", rating = contestMetaData.rating)
             Spacer(modifier = Modifier.height(16.dp))
-            RatingSection(title = "Predicted Rating", rating = "$predictedRating (↑ ${200})")
+            RatingSection(title = "Predicted Rating", rating = "${round(contestMetaData.rating.toFloat()+ratingDelta)} (${if(ratingDelta>0) "↑" else "↓"} ${ratingDelta})")
 
             Divider(modifier = Modifier.padding(vertical = 24.dp))
 
@@ -183,7 +184,7 @@ fun Preview() {
             contest= contest,
             problemsSolved = problemsSolved ,
             contestMetaData= contestMetaData,
-            predictedRating = 2000f
+            ratingDelta =  0f
         )
     }
 }

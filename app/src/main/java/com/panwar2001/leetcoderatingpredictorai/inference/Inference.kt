@@ -1,6 +1,7 @@
 package com.panwar2001.leetcoderatingpredictorai.inference
 
 import android.content.Context
+import android.util.Log
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.FileUtil
 import java.nio.FloatBuffer
@@ -38,18 +39,23 @@ fun scaleInputData(
 }
 
 fun runModel(context: Context, inputData: Array<Array<FloatArray>>): Float {
-    val litertBuffer =FileUtil.loadMappedFile(context, "model.tflite")
-    val interpreter = Interpreter(litertBuffer, Interpreter.Options())
-    val inputShape = interpreter.getInputTensor(0).shape()
-    val outputShape = interpreter.getOutputTensor(0).shape()
-    val inputBuffer = FloatBuffer.allocate(inputShape.reduce { acc,i -> acc*i })
-    inputData[0][0].forEach { inputBuffer.put(it) }
-    inputBuffer.rewind()
-    val outputBuffer = FloatBuffer.allocate(outputShape.reduce { acc,i -> acc*i })
-    interpreter.run(inputBuffer, outputBuffer)
-    outputBuffer.rewind()
-    val output = FloatArray(outputBuffer.capacity())
-    outputBuffer.get(output)
-    return output[0]
+    try {
+        val litertBuffer = FileUtil.loadMappedFile(context, "model.tflite")
+        val interpreter = Interpreter(litertBuffer, Interpreter.Options())
+        val inputShape = interpreter.getInputTensor(0).shape()
+        val outputShape = interpreter.getOutputTensor(0).shape()
+        val inputBuffer = FloatBuffer.allocate(inputShape.reduce { acc, i -> acc * i })
+        inputData[0][0].forEach { inputBuffer.put(it) }
+        inputBuffer.rewind()
+        val outputBuffer = FloatBuffer.allocate(outputShape.reduce { acc, i -> acc * i })
+        interpreter.run(inputBuffer, outputBuffer)
+        outputBuffer.rewind()
+        val output = FloatArray(outputBuffer.capacity())
+        outputBuffer.get(output)
+        return output[0]
+    }catch(error: Exception){
+        Log.e("ERROR",error.message.toString())
+        return 0f
+    }
 }
 

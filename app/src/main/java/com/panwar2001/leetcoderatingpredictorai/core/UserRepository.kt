@@ -1,10 +1,14 @@
 package com.panwar2001.leetcoderatingpredictorai.core
 
 import android.content.Context
+import android.util.Log
 import android.util.Log.e
 import com.apollographql.apollo.ApolloClient
-import com.panwar2001.leetcoderatingpredictorai.database.ContestEntity
 import com.panwar2001.leetcoderatingpredictorai.di.LeetCodeApiService
+import com.panwar2001.leetcoderatingpredictorai.inference.UserInput
+import com.panwar2001.leetcoderatingpredictorai.inference.getUserInputArray
+import com.panwar2001.leetcoderatingpredictorai.inference.runModel
+import com.panwar2001.leetcoderatingpredictorai.inference.scaleInputData
 import com.panwar2001.prediction.GetUserProfileQuery
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -35,7 +39,6 @@ constructor(
             if(username==""){
                 throw Exception("Empty user name")
             }
-//            val user = Optional.presentIfNotNull(username)
             val response = apolloClient.query(GetUserProfileQuery(username)).execute()
             e("response",response.toString())
             if(response.hasErrors() || response.errors !=null){
@@ -59,22 +62,31 @@ constructor(
         userRank: Float,
         contestTitle: String
     ): Float {
-        val totalParticipants = apiService.getContestRanking(contestTitle)
+        try {
+            val title = contestTitle.lowercase().replace(" ", "-")
+            val totalParticipants = apiService.getContestRanking(title)
+            val input = UserInput(
+                userRating = userRating,
+                contestAttended = contestAttended,
+                userRank = userRank,
+                totalParticipants = totalParticipants.userNum * 1f
+            )
+            Log.i("userRating", userRating.toString())
+            Log.i("contestAttended", contestAttended.toString())
+            Log.i("userRank", userRank.toString())
+            Log.i("totalParticipants", totalParticipants.toString())
 
-        val input = UserInput(
-            userRating = userRating,
-            contestAttended = contestAttended*1f,
-            userRank =  userRank*1f,
-            totalParticipants = totalParticipants.userNum*1f
-        )
+            val rawInput = getUserInputArray(input)
 
-        val rawInput = getUserInputArray(input)
+            val minValues = floatArrayOf(1195.253f, 0f, 500f, 0f, 0f)
+            val maxValues = floatArrayOf(3104.812f, 25169f, 30506f, 108.78220141f, 185f)
 
-        val minValues = floatArrayOf(1195.253f,0f,500f,0f,0f)
-        val maxValues = floatArrayOf(3104.812f,25169f,30506f,108.78220141f,185f)
+            val scaledInput = scaleInputData(rawInput, minValues, maxValues)
 
-        val scaledInput = scaleInputData(rawInput, minValues, maxValues)
-
-        return runModel(context, scaledInput)
+            return runModel(context, scaledInput)
+        }catch (error: Error){
+            e("ERROR",error.message.toString())
+            return 0f
+        }
     }
 }

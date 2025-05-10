@@ -88,6 +88,8 @@ fun NavigationController(
             val contestData by predictionViewModel.contestData.collectAsState()
             val problemsSolved by predictionViewModel.problemsSolved.collectAsState()
             val contestMetaData by predictionViewModel.contestMetaData.collectAsState()
+            val predictionStatus by predictionViewModel.predictionStatus.collectAsState()
+
                 Scaffold(bottomBar = {
                     BottomNavigationBar(
                         selectedTab = "Prediction",
@@ -102,7 +104,7 @@ fun NavigationController(
                                 contest = contestData,
                                 problemsSolved = problemsSolved,
                                 contestMetaData = contestMetaData,
-                                predictedRating = 3343f
+                                ratingDelta = predictionStatus.ratingDelta
                             )
                         }
                     }

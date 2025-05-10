@@ -1,4 +1,6 @@
+import com.android.build.api.dsl.AaptOptions
 import org.gradle.kotlin.dsl.implementation
+import org.gradle.kotlin.dsl.testImplementation
 
 plugins {
     alias(libs.plugins.android.application)
@@ -37,7 +39,7 @@ android {
     }
 
     buildTypes {
-        debug {
+        release {
             isMinifyEnabled = true
             isShrinkResources= true
             proguardFiles(
@@ -57,7 +59,11 @@ android {
         compose = true
     }
     hilt {    enableAggregatingTask = true }
-
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -84,6 +90,12 @@ dependencies {
     //missing class
     implementation(libs.error.prone.annotations)
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.robolectric)
+    // context provider
+    testImplementation(libs.androidx.core)
+
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -105,6 +117,8 @@ dependencies {
     // OkHttp (Optional: Logging Interceptor)
     implementation(libs.logging.interceptor) // or latest
     // Tensorflow lite
-    implementation(libs.tensorflow.lite)
-//    implementation(libs.lite.rt)
+    implementation(libs.litert)
+    implementation(libs.litert.support)
+    implementation(libs.litert.metadata)
+    implementation(libs.tensorflow.lite.select.tf.ops)
 }
