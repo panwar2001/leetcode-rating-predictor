@@ -3,6 +3,7 @@ package com.panwar2001.leetcoderatingpredictorai.ui
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -53,7 +54,7 @@ internal fun ChartCirclePie(
             style = SpanStyle(
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black
+                color = MaterialTheme.colorScheme.onSurface
             )
         ) {
             append(problemsSolved)

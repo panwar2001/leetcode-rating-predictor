@@ -28,14 +28,11 @@ android {
         minSdk = 24
         //noinspection OldTargetApi
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.0.0"
+        versionCode = 5
+        versionName = "1.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        ndk{
-            abiFilters+=listOf("armeabi-v7a","arm64-v8a","x86","x86_64")
-        }
     }
     buildTypes {
         release {
