@@ -1,11 +1,13 @@
 package com.panwar2001.leetcoderatingpredictorai.ui
 
+import com.panwar2001.leetcoderatingpredictorai.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -23,7 +25,7 @@ fun AwaitingPrediction() {
             modifier = Modifier.fillMaxSize()
         ) {
             Text(
-                text = "Your Rating will appear here after prediction...",
+                text = stringResource(R.string.awaiting_prediction_content),
                 style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                 color = Color.Gray
             )

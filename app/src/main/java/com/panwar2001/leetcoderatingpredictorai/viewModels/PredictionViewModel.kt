@@ -18,13 +18,15 @@ import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
 import kotlin.math.round
+import kotlin.math.roundToInt
 
 data class ContestData(
     val title: String="",
     val startTime: String="",
     val rating: String="",
     val ranking: String="",
-    val problemsSolved: String=""
+    val problemsSolved: String="",
+    val delta:Float = 0f
 )
 data class ProblemsSolved(
     val easy: Int = 0 ,
@@ -42,7 +44,6 @@ data class ContestMetaData(
 data class PredictionStatus(
     val loading: Boolean = false,
     val unableToPredict: Boolean = false,
-    val ratingDelta: Float= 0f
 )
 /**
  * @PredictionViewModel fetch user data and predicts the rating of last contest, if rating is not updated
@@ -81,7 +82,7 @@ constructor(private val userRepository: UserRepository): ViewModel(){
                 updateContestData(data.userContestRankingHistory)
                 updateProblemSolved(data.matchedUser)
                 updateUserMetaData(data.userContestRanking)
-                predictRatingDelta()
+//                predictRatingDelta()
                 success(true)
                 _predictionStatus.update { it.copy(loading = false, unableToPredict = false) }
             }.onFailure {
@@ -97,23 +98,23 @@ constructor(private val userRepository: UserRepository): ViewModel(){
      */
     internal fun predictRatingDelta(){
         // if attempted no contest then no rating change
-        if(_contestData.value.isEmpty()) {
-            _predictionStatus.update { it.copy(ratingDelta = 0f) }
-        }
-         viewModelScope.launch {
-             val latestContestAttended = _contestData.value[0]
-             // if contest rating not updated on the dashboard then predict else return rating change
-             val  delta = if(
-                 contestMetaData.value.rating === latestContestAttended.rating
-                 ){
-              userRepository.predictUserRating(
-                userRating = latestContestAttended.rating.toFloat(),
-                contestAttended = _contestMetaData.value.attendedContestCount.toFloat(),
-                userRank = latestContestAttended.ranking.toFloat(),
-                contestTitle = latestContestAttended.title
-            ) } else contestMetaData.value.rating.toFloat()-latestContestAttended.rating.toFloat()
-             _predictionStatus.update { it.copy(ratingDelta = delta) }
-        }
+//        if(_contestData.value.isEmpty()) {
+//            _predictionStatus.update { it.copy(ratingDelta = 0f) }
+//        }
+//         viewModelScope.launch {
+//             val latestContestAttended = _contestData.value[0]
+//             // if contest rating not updated on the dashboard then predict else return rating change
+//             val  delta = if(
+//                 contestMetaData.value.rating === latestContestAttended.rating
+//                 ){
+//              userRepository.predictUserRating(
+//                userRating = latestContestAttended.rating.toFloat(),
+//                contestAttended = _contestMetaData.value.attendedContestCount.toFloat(),
+//                userRank = latestContestAttended.ranking.toFloat(),
+//                contestTitle = latestContestAttended.title
+//            ) } else contestMetaData.value.rating.toFloat()-latestContestAttended.rating.toFloat()
+//             _predictionStatus.update { it.copy(ratingDelta = delta) }
+//        }
     }
 
     /**
@@ -126,22 +127,28 @@ constructor(private val userRepository: UserRepository): ViewModel(){
         userContestRankingHistory:  List<GetUserProfileQuery.UserContestRankingHistory>
     ){
         _contestData.update { currentList ->
+            var previousRating = 0f
             userContestRankingHistory.mapNotNull { historyItem ->
                 if(historyItem.attended) {
-                    ContestData(
+                    val data= ContestData(
                         title = historyItem.contest.title,
                         startTime = getTime(historyItem.contest.startTime.toLong()),
                         rating = historyItem.rating.toString(),
                         ranking = historyItem.ranking.toString(),
                         problemsSolved = historyItem.problemsSolved.toString(),
+                        delta = round2twoDecimalPlaces(historyItem.rating.toFloat()-previousRating)
                     )
+                    previousRating=historyItem.rating.toFloat()
+                    data
                 }else{
                     null
                 }
             }.sortedByDescending { it.startTime }
         }
     }
-
+    internal fun round2twoDecimalPlaces(value: Float): Float{
+        return (value * 100).roundToInt() / 100.0f
+    }
     /**
      * update user rating in a state to pass down to composable
      *

@@ -8,6 +8,8 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.panwar2001.leetcoderatingpredictorai.R
 import com.panwar2001.leetcoderatingpredictorai.Screens
 
 @Composable
@@ -25,7 +27,7 @@ fun BottomNavigationBar(
         )
         NavigationBarItem(
             icon = { Icon(Icons.Default.Info, contentDescription = "Predictions") },
-            label = { Text("Predictions") },
+            label = { Text(stringResource(R.string.prediction)) },
             selected = selectedTab=="Prediction",
             onClick = { if(selectedTab!="Prediction") navigateTo(Screens.PredictionScreen.route) },
             enabled = !isPredicting

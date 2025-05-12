@@ -1,7 +1,3 @@
-import com.android.build.api.dsl.AaptOptions
-import org.gradle.kotlin.dsl.implementation
-import org.gradle.kotlin.dsl.testImplementation
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -32,12 +28,15 @@ android {
         minSdk = 24
         //noinspection OldTargetApi
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
 
+        ndk{
+            abiFilters+=listOf("armeabi-v7a","arm64-v8a","x86","x86_64")
+        }
+    }
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -47,7 +46,16 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            isMinifyEnabled = true
+            isShrinkResources= true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11

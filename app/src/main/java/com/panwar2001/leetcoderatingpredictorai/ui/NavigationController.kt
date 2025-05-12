@@ -103,8 +103,7 @@ fun NavigationController(
                             RatingOverviewScreen(
                                 contest = contestData,
                                 problemsSolved = problemsSolved,
-                                contestMetaData = contestMetaData,
-                                ratingDelta = predictionStatus.ratingDelta
+                                contestMetaData = contestMetaData
                             )
                         }
                     }

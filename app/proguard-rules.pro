@@ -19,3 +19,7 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-if interface *
+-keepclasseswithmembers,allowobfuscation interface <1> {
+  @retrofit2.http.* <methods>;
+}

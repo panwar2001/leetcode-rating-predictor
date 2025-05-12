@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">LeetcodeRatingPredictorAI</string>
+    <string name="app_name">Rating Analyzer</string>
+    <string name="title">LeetCode Rating Analyzer</string>
+    <string name="analyze">Analyze</string>
+    <string name="prediction">RankRadar</string>
+    <string name="awaiting_prediction_content">Your rating will be displayed here once retrieved…</string>
 </resources>
